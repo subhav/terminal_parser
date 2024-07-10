@@ -98,21 +98,23 @@ func (t *RichTextTerminal) handleCSI(params []string, intermediates string, fina
 				nParams = append(nParams, 1)
 			}
 			t.screen.setPos(nParams[0]-1, nParams[1]-1)
-		case 'h': // Set Mode (SM)
-			convertParamsWithDefault(0)
-			if intermediates == "?" {
-				for _, param := range nParams {
-					switch param {
-					case 47, 1049: // Alternate screen buffer, SMCUP
-						t.upgrade()
-					}
-				}
-			}
 		case 'm': // Select Graphic Rendition (SGR)
 			convertParamsWithDefault(0)
 			for len(nParams) > 0 {
 				handled := t.handleSGR(nParams)
 				nParams = nParams[handled:]
+			}
+		}
+	}
+	if intermediates == "?" {
+		switch final {
+		case 'h': // Set Mode (SM)
+			convertParamsWithDefault(0)
+			for _, param := range nParams {
+				switch param {
+				case 47, 1049: // Alternate screen buffer, SMCUP
+					t.upgrade()
+				}
 			}
 		}
 	}
